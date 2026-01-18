@@ -1,3 +1,14 @@
+### Docker setup
+```
+sudo apt install docker.io -y
+```
+```
+sudo systemctl start docker
+sudo systemctl enable docker
+```
+
+
+
 ### Step 1: Create Lab Directory & Data Folders
 
 Run these to set up the storage for the **MySQL Bind Mode** volume.
@@ -107,3 +118,9 @@ sudo docker ps
 You can now access 
 - WordPress at example: `http://192.168.56.128:8080`
 - phpMyAdmin at example:  `http://192.168.56.128:8081`
+
+Check you IP
+```
+ip addr
+```
+
