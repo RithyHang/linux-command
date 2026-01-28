@@ -3,6 +3,20 @@
 This repository contains a Spring Boot REST API and a MySQL database environment. The project is fully containerized for easy deployment.
 
 ## 🛠️ Quick Start
+delete all old docker volumes, images
+```bash
+# 1. Stop and remove ALL containers, networks, and images from previous labs
+sudo docker stop $(sudo docker ps -aq)
+sudo docker rm $(sudo docker ps -aq)
+
+# 2. Prune unused networks and volumes (This is the 'Secret Sauce')
+# This clears out old WordPress/MySQL volumes that squat on port 3306
+sudo docker volume prune -f
+sudo docker network prune -f
+
+# 3. Double-check that the host MySQL is dead
+sudo systemctl stop mysql
+```
 
 ### 1. Clone the Project
 
