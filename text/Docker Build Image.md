@@ -1,91 +1,62 @@
-# Lab: Custom Build and Cloud Integration (Spring Boot + AWS RDS)
+# 📦 Spring Boot API (Dockerized)
 
-### 1. The Concept: "Build vs. Orchestrate"
+This repository contains a Spring Boot REST API and a MySQL database environment. The project is fully containerized for easy deployment.
 
-In this lab, we use a two-step process to get the application running:
+## 🛠️ Quick Start
 
-* **The Dockerfile (The Build):** Compiles the Java source code using Gradle and packages it into a lightweight container image.
-* **Docker Compose (The Orchestration):** Manages the "Runtime." It maps the ports and injects the **AWS RDS** connection credentials into the container environment.
+### 1. Clone the Project
 
----
-
-### 2. Project Folder Structure
-
-Ensure your Ubuntu project folder looks like this:
-
-```text
-~/ProductAPI_Project/
-├── Dockerfile              # The build instructions
-├── docker-compose.yaml     # The runtime configuration
-├── build.gradle            # Build dependencies
-├── gradlew                 # Gradle wrapper
-└── src/                    # Your Java source code
-
-```
-
----
-
-### 3. The Build Instructions (`Dockerfile`)
-
-This file turns your code into an image. We use the **JDK 21** base image to match your Spring Boot version.
-
-```dockerfile
-# Use official Java 21 image
-FROM eclipse-temurin:21-jdk
-
-WORKDIR /app
-
-# Copy project files
-COPY . .
-
-# Make gradlew executable and build the JAR
-RUN chmod +x gradlew
-RUN ./gradlew clean build -x test
-
-# Expose port 8080 and run the JAR
-EXPOSE 8080
-CMD ["java", "-jar", "build/libs/ProductAPI-0.0.1-SNAPSHOT.jar"]
-
-```
-
----
-
-### 4. The Orchestration (`docker-compose.yaml`)
-
-This file connects your container to the outside world and your AWS Database.
-
-```yaml
-version: '3.8'
-
-services:
-  product_api:
-    build: .             # Build image using the Dockerfile in current folder
-    container_name: product_api_container
-    ports:
-      - "8080:8080"      # Access via http://<VM_IP>:8080
-    environment:
-      # Injecting AWS RDS Credentials
-      - SPRING_DATASOURCE_URL=jdbc:mysql://your-rds-endpoint.aws.com:3306/your_db
-      - SPRING_DATASOURCE_USERNAME=admin
-      - SPRING_DATASOURCE_PASSWORD=your_password
-    restart: always
-
-```
-
----
-
-### 5. Running the Project
-
-Since you are building from source, you must use the `--build` flag to ensure any code changes are captured.
+Create a directory and pull the latest code:
 
 ```bash
-# 1. Build and Start
+mkdir -p ~/spring-projects && cd ~/spring-projects
+git clone https://github.com/RithyHang/SpringAPI.git
+
+```
+
+### 2. Clean Port Conflicts
+
+Before starting, ensure ports **8080** and **3306** are not being used by local services (like a local MySQL installation or a previous lab):
+
+```bash
+# Stop local MySQL if it's running
+sudo systemctl stop mysql
+
+# Force kill any process on the required ports
+sudo fuser -k 8080/tcp
+sudo fuser -k 3306/tcp
+
+```
+
+### 3. Build and Run
+
+Use Docker Compose to build the Java application and start the services:
+
+```bash
 sudo docker-compose up --build -d
 
-# 2. Check the Logs (Verify RDS Connection)
-sudo docker logs -f product_api_container
+```
 
-# 3. Test the Swagger UI
-# Open in browser: http://yourIPaddressHere:8080/swagger-ui/index.html
+---
+
+## 🚀 Accessing the API
+
+Once the containers are started, you can verify they are running with `sudo docker ps`.
+
+| Service | URL |
+| --- | --- |
+| **Swagger UI** | `http://<VM_IP_ADDRESS>:8080/swagger-ui/index.html` |
+| **phpMyAdmin** | `http://<VM_IP_ADDRESS>:8081` |
+
+> **Note:** To find your `<VM_IP_ADDRESS>`, run `ip addr` in your terminal and look for the `inet` address under your main network interface (usually `ens33` or `eth0`).
+
+---
+
+## ⚠️ Troubleshooting
+
+* **Database Reset:** If you change environment variables in `docker-compose.yml` and the changes aren't reflecting, run `sudo docker-compose down -v` to wipe the persistent volumes and start fresh.
+* **Logs:** If the API container is restarting, check the error logs:
+```bash
+sudo docker logs product_api_container
 
 ```
