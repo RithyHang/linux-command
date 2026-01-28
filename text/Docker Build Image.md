@@ -27,6 +27,9 @@ mkdir -p ~/spring-projects && cd ~/spring-projects
 git clone https://github.com/RithyHang/SpringAPI.git
 
 ```
+```bash
+cd SpringAPI/
+```
 
 ### 2. Clean Port Conflicts
 
